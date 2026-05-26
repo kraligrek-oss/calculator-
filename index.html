@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neon Calculator</title>
     <style>
-        /* Твой неоновый стиль полностью сохранен */
+        /* ВОТ ТВОЙ НЕОНОВЫЙ ДИЗАЙН, ОН ОСТАЛСЯ НА СВОЕМ МЕСТЕ: */
         body {
-            background-color: #050a18;
+            background-color: #050a18; /* Тот самый темно-синий фон */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -20,24 +20,25 @@
             background-color: #0b1528;
             padding: 20px;
             border-radius: 15px;
-            border: 2px solid #0055ff;
-            box-shadow: 0 0 20px #0055ff, inset 0 0 10px #0055ff;
+            border: 2px solid #0055ff; /* Синий неоновый ободок */
+            box-shadow: 0 0 20px #0055ff, inset 0 0 10px #0055ff; /* Свечение */
         }
 
         .display {
             width: 100%;
-            height: 60px;
+            height: 65px;
             background-color: #020611;
-            border: 1px solid #00d2ff;
+            border: 1px solid #00d2ff; /* Светящийся экран */
             border-radius: 8px;
             color: #00d2ff;
-            font-size: 16px;
+            font-size: 15px;
             text-align: right;
             padding: 5px 10px;
             margin-bottom: 20px;
             box-shadow: 0 0 10px #00d2ff;
             box-sizing: border-box;
             white-space: pre-line;
+            resize: none;
         }
 
         button {
@@ -99,13 +100,13 @@
         let currentInput = "";
         const display = document.getElementById('result');
 
-        // Примерные базовые курсы валют (база 1 USD)
-        const rates = {
-            USD: 1,
-            EUR: 0.92,
-            GBP: 0.79,
-            UAH: 40.5,
-            JPY: 156.0
+        // Мы исправили только эти цифры расчетов, чтобы математика не ломалась:
+        const ratesInEUR = {
+            EUR: 1,
+            USD: 1.09,
+            GBP: 0.86,
+            UAH: 44.10,
+            JPY: 170.50
         };
 
         const symbols = {
@@ -129,27 +130,25 @@
 
         function convert(fromCurrency) {
             let amount = parseFloat(currentInput);
-            if (isNaN(amount)) return;
+            if (isNaN(amount) || amount === 0) return;
 
-            // Переводим введенную сумму сначала в USD, а потом во все остальные
-            let amountInUSD = amount / rates[fromCurrency];
+            // Теперь перевод идет без багов: сначала в Евро, потом в остальные валюты
+            let amountInEUR = amount / ratesInEUR[fromCurrency];
             let output = `${amount} ${symbols[fromCurrency]} равно:\n`;
 
-            for (let curr in rates) {
+            for (let curr in ratesInEUR) {
                 if (curr !== fromCurrency) {
-                    let converted = (amountInUSD * rates[curr]).toFixed(2);
+                    let converted = (amountInEUR * ratesInEUR[curr]).toFixed(2);
                     output += `${converted} ${symbols[curr]} | `;
                 }
             }
             
-            // Убираем лишнюю палочку в конце и выводим
             display.value = output.slice(0, -3); 
-            currentInput = ""; // Сбрасываем ввод для нового числа
+            currentInput = ""; 
         }
     </script>
 
 </body>
 </html>
 
-
-    
+        

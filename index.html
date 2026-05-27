@@ -1,126 +1,227 @@
-// 1. Запасные курсы валют (если нет интернета)
-let exchangeRates = {
-    "USD": 1.09,
-    "GBP": 0.86,
-    "UAH": 44.10,
-    "JPY": 170.50
-};
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Calculator</title>
+    <style>
+        /* ВОТ ТВОЙ НЕОНОВЫЙ ДИЗАЙН, ОН ОСТАЛСЯ В ЦЕЛОСТИ И СОХРАННОСТИ */
+        body {
+            background-color: #050a18;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            user-select: none;
+            touch-action: none;
+        }
 
-// Функция для автообновления курсов через интернет (Вариант 3)
-async function updateRates() {
-    try {
-        // Запрашиваем свежие курсы относительно EUR
-        const response = await fetch('https://open.er-api.com/v6/latest/EUR');
-        if (!response.ok) throw new Error('Ошибка сети');
+        .calculator {
+            background-color: #0b1528;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #0055ff;
+            box-shadow: 0 0 20px #0055ff;
+            width: 320px;
+        }
+
+        .display {
+            width: 100%;
+            height: 85px;
+            background-color: #020611;
+            border: 1px solid #00d2ff;
+            border-radius: 8px;
+            color: #00d2ff;
+            font-size: 16px;
+            text-align: right;
+            padding: 10px;
+            box-sizing: border-box;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 10px #00d2ff;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            background-color: #0c1a30;
+            border: 1px solid #0055ff;
+            border-radius: 8px;
+            color: #00d2ff;
+            font-size: 18px;
+            padding: 15px;
+            cursor: pointer;
+            box-shadow: 0 0 5px #0055ff;
+            transition: all 0.1s ease;
+        }
+
+        button:active {
+            background-color: #0055ff;
+            color: #fff;
+            box-shadow: 0 0 15px #0055ff;
+        }
+
+        .row-span {
+            grid-row: span 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <div class="display">0</div>
         
-        const data = await response.json();
-        
-        // Обновляем наши переменные свежими данными из интернета
-        exchangeRates.USD = data.rates.USD || 1.09;
-        exchangeRates.GBP = data.rates.GBP || 0.86;
-        exchangeRates.UAH = data.rates.UAH || 44.10;
-        exchangeRates.JPY = data.rates.JPY || 170.50;
-        
-        console.log("Курсы валют успешно обновлены:", exchangeRates);
-    } catch (error) {
-        console.log("Не удалось загрузить курсы, используем стандартные:", error);
-    }
-}
+        <div class="buttons">
+            <button onclick="pressKey('C')">C</button>
+            <button onclick="pressKey('UAH')">грн</button>
+            <button onclick="pressKey('EUR')">€</button>
+            <button onclick="pressKey('GBP')">£</button>
+            
+            <button onclick="pressKey('7')">7</button>
+            <button onclick="pressKey('8')">8</button>
+            <button onclick="pressKey('9')">9</button>
+            <button onclick="pressKey('USD')">$</button>
+            
+            <button onclick="pressKey('4')">4</button>
+            <button onclick="pressKey('5')">5</button>
+            <button onclick="pressKey('6')">6</button>
+            <button class="row-span" onclick="pressKey('JPY')">¥</button>
+            
+            <button onclick="pressKey('1')">1</button>
+            <button onclick="pressKey('2')">2</button>
+            <button onclick="pressKey('3')">3</button>
+            
+            <button style="grid-column: span 2;" onclick="pressKey('0')">0</button>
+            <button onclick="pressKey('.')">.</button>
+        </div>
+    </div>
 
-// Запускаем обновление курсов сразу при загрузке страницы
-updateRates();
+    <script>
+        // 1. Запасные курсы валют (если вдруг нет интернета)
+        let exchangeRates = {
+            "USD": 1.09,
+            "GBP": 0.86,
+            "UAH": 44.10,
+            "JPY": 170.50
+        };
 
-// 2. Функция звукового отклика (Вариант 4)
-function playClickSound() {
-    try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
+        // Функция автоматического обновления курсов через интернет
+        async function updateRates() {
+            try {
+                const response = await fetch('https://open.er-api.com/v6/latest/EUR');
+                if (!response.ok) throw new Error('Ошибка сети');
+                
+                const data = await response.json();
+                
+                // Обновляем курсы свежими данными из интернета относительно EUR
+                exchangeRates.USD = data.rates.USD || 1.09;
+                exchangeRates.GBP = data.rates.GBP || 0.86;
+                exchangeRates.UAH = data.rates.UAH || 44.10;
+                exchangeRates.JPY = data.rates.JPY || 170.50;
+                
+                console.log("Курсы валют успешно обновлены через интернет:", exchangeRates);
+            } catch (error) {
+                console.log("Используем стандартные курсы:", error);
+            }
+        }
 
-        oscillator.type = 'sine'; // Мягкий футуристичный звук
-        oscillator.frequency.setValueAtTime(1200, audioCtx.currentTime); // Высокий тон (клик)
-        
-        // Быстрое затухание звука, чтобы получился именно клик
-        gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.05);
+        // Запускаем авто-обновление при загрузке страницы
+        updateRates();
 
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
+        // 2. Функция звукового отклика (генерирует кибер-клик)
+        function playClickSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
 
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.05);
-    } catch (e) {
-        console.log("Звук не поддерживается браузером");
-    }
-}
+                oscillator.type = 'sine'; 
+                oscillator.frequency.setValueAtTime(1200, audioCtx.currentTime); 
+                
+                gainNode.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.04);
 
-// Переменные для логики калькулятора
-let currentInput = "";
-const display = document.querySelector('.display');
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
 
-// 3. Функция вывода на экран с анимацией (Вариант 1)
-function updateDisplay(text) {
-    // Добавляем класс анимации (быстрое мигание)
-    display.style.transition = "opacity 0.05s ease-in-out";
-    display.style.opacity = "0.3";
-    
-    setTimeout(() => {
-        display.innerText = text;
-        display.style.opacity = "1";
-    }, 50);
-}
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.04);
+            } catch (e) {
+                console.log("Звук не поддерживается");
+            }
+        }
 
-// Главная функция нажатия на кнопки
-function pressKey(key) {
-    // Включаем звук при каждом тапе!
-    playClickSound();
+        // Логика ввода и расчётов
+        let currentInput = "";
+        const display = document.querySelector('.display');
 
-    if (key === 'C') {
-        currentInput = "";
-        updateDisplay("0");
-        return;
-    }
+        // 3. Функция вывода на экран с анимацией неоновой вспышки
+        function updateDisplay(text) {
+            display.style.transition = "opacity 0.05s ease-in-out";
+            display.style.opacity = "0.3";
+            
+            setTimeout(() => {
+                display.innerText = text;
+                display.style.opacity = "1";
+            }, 50);
+        }
 
-    if (key === '.') {
-        if (!currentInput.includes('.')) {
-            currentInput += '.';
+        function pressKey(key) {
+            // Включаем звук клика
+            playClickSound();
+
+            if (key === 'C') {
+                currentInput = "";
+                updateDisplay("0");
+                return;
+            }
+
+            if (key === '.') {
+                if (!currentInput.includes('.')) {
+                    currentInput += '.';
+                    updateDisplay(currentInput);
+                }
+                return;
+            }
+
+            // Логика конвертации при нажатии валютных кнопок
+            if (key === 'USD' || key === 'EUR' || key === 'GBP' || key === 'UAH' || key === 'JPY') {
+                let amount = parseFloat(currentInput);
+                if (isNaN(amount) || amount <= 0) {
+                    updateDisplay("Введите сумму");
+                    return;
+                }
+
+                // Переводим из Евро во все остальные валюты
+                if (key === 'EUR') {
+                    let usd = (amount * exchangeRates.USD).toFixed(2);
+                    let gbp = (amount * exchangeRates.GBP).toFixed(2);
+                    let uah = (amount * exchangeRates.UAH).toFixed(2);
+                    let jpy = (amount * exchangeRates.JPY).toFixed(2);
+
+                    updateDisplay(`${amount} € равно:\n${usd} $ | ${gbp} £ | ${uah} грн | ${jpy} ¥`);
+                } else {
+                    updateDisplay(`Нажми € для перевода`);
+                }
+                currentInput = ""; 
+                return;
+            }
+
+            // Ввод цифр
+            if (currentInput === "0") currentInput = "";
+            currentInput += key;
             updateDisplay(currentInput);
         }
-        return;
-    }
-
-    // Логика конвертации валют
-    if (key === 'USD' || key === 'EUR' || key === 'GBP' || key === 'UAH' || key === 'JPY') {
-        let amount = parseFloat(currentInput);
-        if (isNaN(amount) || amount <= 0) {
-            updateDisplay("Введите сумму");
-            return;
-        }
-
-        // Если нажали евро, то считаем, что ввели евро и переводим в другие валюты
-        if (key === 'EUR') {
-            let usd = (amount * exchangeRates.USD).toFixed(2);
-            let gbp = (amount * exchangeRates.GBP).toFixed(2);
-            let uah = (amount * exchangeRates.UAH).toFixed(2);
-            let jpy = (amount * exchangeRates.JPY).toFixed(2);
-
-            updateDisplay(`${amount} € равно:\n ${usd} $ | ${gbp} £ | ${uah} грн | ${jpy} ¥`);
-        } else {
-            // Если выбрали другую валюту, можно дописать логику обратного перевода, 
-            // но пока оставляем твою проверенную схему!
-            updateDisplay(`Нажми € для перевода`);
-        }
-        currentInput = ""; // Сбрасываем ввод после расчета
-        return;
-    }
-
-    // Ввод цифр
-    if (currentInput === "0") currentInput = "";
-    currentInput += key;
-    updateDisplay(currentInput);
-}
-
-// Привязываем клики к кнопкам (убедись, что на кнопках в HTML стоит onclick="pressKey('...')")
-
-        
-        
+    </script>
+</body>
+</html>
